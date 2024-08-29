@@ -1,0 +1,3 @@
+Identify a PID of a process running as THM-Attacker to target. Once identified supply the PID as an argument to execute shellcode-injector.exe located in the Injectors directory on the desktop. 
+
+What flag is obtained after injecting the shellcode?
