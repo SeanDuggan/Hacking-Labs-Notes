@@ -1,0 +1,13 @@
+Traditional AV software looks for malware with predefined malicious patterns or signatures. Malware is harmful software whose primary goal is to cause damage to a target machine, including but not limited to:
+
+    Gain full access to a target machine.
+    Steal sensitive information such as passwords.
+    Encrypt files and cause damage to files.
+    Inject other malicious software or unwanted advertisements.
+    Used the compromised machine to perform further attacks such as botnet attacks.
+
+Generally speaking, AV detection can be classified into three main approaches:
+
+    Static Detection
+    Dynamic Detection
+    Heuristic and Behavioral Detection 
