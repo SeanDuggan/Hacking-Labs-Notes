@@ -1,0 +1,5 @@
+At what offset was the end of bad bytes for the file? 
+
+.\ThreatCheck.exe -f "C:\Users\Student\Desktop\Binaries\shell.exe" -e AMSI
+
+Let it run for approx 15 minutes, the output will display the offset.
