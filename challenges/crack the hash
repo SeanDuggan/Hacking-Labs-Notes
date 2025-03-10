@@ -3,3 +3,7 @@ https://10015.io/tools/ : for MD5, SHA256, SHA512 algorithms
 https://www.dcode.fr/md4-hash : for MD4
 
 https://www.tunnelsup.com/hash-analyzer/
+
+
+grep -x '.\{4\}' /usr/share/wordlists/rockyou.txt > rockU_4char.txt
+hashcat -a 0 -m 3200 hash.txt -o cracked.txt rockU_4char.txt
