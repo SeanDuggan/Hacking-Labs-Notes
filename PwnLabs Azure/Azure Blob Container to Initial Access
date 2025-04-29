@@ -1,1 +1,97 @@
 
+Determine that the Web Application is hosted on blob storage: 
+Invoke-WebRequest -Uri 'https://mbtwebsite.blob.core.windows.net/$web/index.html' -Method Head
+
+Response should look like so:
+=======================================================================================================================
+StatusCode        : 200
+StatusDescription : OK
+Content           :
+RawContent        : HTTP/1.1 200 OK
+                    Content-MD5: JSe+sM+pXGAEFInxDgv4CA==
+                    x-ms-request-id: d2518967-b01e-0069-6bfc-b87573000000
+                    x-ms-version: 2009-09-19
+                    x-ms-lease-status: unlocked
+                    x-ms-blob-type: BlockBlob
+                    Content...
+Forms             : {}
+Headers           : {[Content-MD5, JSe+sM+pXGAEFInxDgv4CA==], [x-ms-request-id, d2518967-b01e-0069-6bfc-b87573000000],
+                    [x-ms-version, 2009-09-19], [x-ms-lease-status, unlocked]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 0
+=======================================================================================================================
+
+http://dev.megabigtech.com/$web/index.html
+
+mbtwebsite: Name of the Azure Storage Account associated with the website. 
+blob.core.windows.net: Azure Blob Storage Service
+$web: The name of the container hosting the website, and it is situated within the storage account
+index.html: The web page being requested
+
+Explore the container to see what else is listed:
+https://mbtwebsite.blob.core.windows.net/$web?restype=container&comp=list
+
+Explore previous versions of the files on blob storage:
+curl -H “x-ms-version: 2019–12–12” ‘https://mbtwebsite.blob.core.windows.net/$web?restype=container&comp=list&include=versions'
+This returns too much data. 
+
+
+apt install libxml2-utils
+
+curl -H "x-ms-version: 2019-12-12" 'https://mbtwebsite.blob.core.windows.net/$web?restype=container&comp=list&include=versions' | xmllint --format - | less
+=======================================================================================================================
+<?xml version="1.0" encoding="utf-8"?>
+<EnumerationResults ServiceEndpoint="https://mbtwebsite.blob.core.windows.net/" ContainerName="$web">
+  <Blobs>
+    <Blob>
+      <Name>index.html</Name>
+      <VersionId>2023-10-20T20:08:20.2966464Z</VersionId>
+      <IsCurrentVersion>true</IsCurrentVersion>
+      <Properties>
+        <Creation-Time>Fri, 20 Oct 2023 20:08:20 GMT</Creation-Time>
+        <Last-Modified>Fri, 20 Oct 2023 20:08:20 GMT</Last-Modified>
+        <Etag>0x8DBD1A84E6455C0</Etag>
+        <Content-Length>782359</Content-Length>
+        <Content-Type>text/html</Content-Type>
+        <Content-Encoding/>
+        <Content-Language/>
+        <Content-CRC64/>
+        <Content-MD5>JSe+sM+pXGAEFInxDgv4CA==</Content-MD5>
+        <Cache-Control/>
+        <Content-Disposition/>
+        <BlobType>BlockBlob</BlobType>
+        <AccessTier>Hot</AccessTier>
+        <AccessTierInferred>true</AccessTierInferred>
+        <LeaseStatus>unlocked</LeaseStatus>
+        <LeaseState>available</LeaseState>
+        <ServerEncrypted>true</ServerEncrypted>
+      </Properties>
+      <OrMetadata/>
+    </Blob>
+    <Blob>
+      <Name>scripts-transfer.zip</Name>
+      <VersionId>2025-02-18T00:29:19.3854225Z</VersionId>
+      <Properties>
+        <Creation-Time>Tue, 18 Feb 2025 00:29:19 GMT</Creation-Time>
+        <Last-Modified>Tue, 18 Feb 2025 00:29:19 GMT</Last-Modified>
+        <Etag>0x8DD4FB348B22911</Etag>
+        <Content-Length>1606</Content-Length>
+        <Content-Type>application/zip</Content-Type>
+        <Content-Encoding/>
+        <Content-Language/>
+        <Content-CRC64/>
+        <Content-MD5>bsEsPFDcovhOK79rRjxEsw==</Content-MD5>
+        <Cache-Control/>
+        <Content-Disposition/>
+        <BlobType>BlockBlob</BlobType>
+:
+=======================================================================================================================
+
+Fimd the version ID and append it to this curl command to download the file
+curl -H "x-ms-version: 2019-12-12" "https://mbtwebsite.blob.core.windows.net/$web/scripts-transfer.zip?versionId=2025-02-18T00:29:19.3854225Z" --output scripts-transfer.zip
+
+
+
