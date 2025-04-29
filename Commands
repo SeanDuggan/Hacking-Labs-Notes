@@ -1,0 +1,29 @@
+Azure AD
+# List users in Azure AD
+az ad user list
+
+# List groups in Azure AD
+az ad group list
+
+# List roles in Azure AD
+az role assignment list
+
+# Assign a role to a user
+az role assignment create --assignee <user-id> --role <role-name>
+
+
+Powershell
+# Connect to Azure AD
+Connect-AzureAD
+
+# List users in Azure AD
+Get-AzureADUser
+
+# List groups in Azure AD
+Get-AzureADGroup
+
+# List roles in Azure AD
+Get-AzureADDirectoryRole
+
+# Assign a role to a user
+Add-AzureADDirectoryRoleMember -ObjectId <role-id> -RefObjectId <user-id>
