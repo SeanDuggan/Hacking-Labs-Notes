@@ -90,8 +90,7 @@ curl -H "x-ms-version: 2019-12-12" 'https://mbtwebsite.blob.core.windows.net/$we
 :
 =======================================================================================================================
 
-Fimd the version ID and append it to this curl command to download the file
-curl -H "x-ms-version: 2019-12-12" "https://mbtwebsite.blob.core.windows.net/$web/scripts-transfer.zip?versionId=2025-02-18T00:29:19.3854225Z" --output scripts-transfer.zip
-
+Find the version ID and append it to this curl command to download the file
+curl -H "x-ms-version: 2019-12-12" 'https://mbtwebsite.blob.core.windows.net/$web/scripts-transfer.zip?versionId=2024-03-29T20:55:40.8265593Z'  --output scripts-transfer.zip
 
 
