@@ -7,3 +7,390 @@ Entra ID (previously Azure AD) is the identity provider for Azure subscriptions,
 An Azure subscription is a logical unit of Azure services that is linked to an Azure account. It serves as a single billing unit for Azure resources consumed and provides an isolated environment for resource management. Each Azure subscription has its own set of resource groups, resources, Azure Resource Manager templates, role-based access control policies, and billing settings.
 
 For this assessment we should install PowerShell, the Azure CLI and the Microsoft Graph PowerShell SDK. Follow the installation procedures for your operating system if needed.
+
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+                                                                                              Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows                                                                                                   PS C:\Windows\System32\WindowsPowerShell\v1.0> az account show                                {                                                                                               "environmentName": "AzureCloud",                                                              "homeTenantId": "2590ccef-687d-493b-ae8d-441cbab63a72",                                       "id": "ceff06cb-e29d-4486-a3ae-eaaec5689f94",                                                 "isDefault": true,                                                                            "managedByTenants": [],
+  "name": "Microsoft Azure Sponsorship",
+  "state": "Enabled",
+  "tenantDefaultDomain": "megabigtech.com",
+  "tenantDisplayName": "Default Directory",
+  "tenantId": "2590ccef-687d-493b-ae8d-441cbab63a72",
+  "user": {
+    "name": "marcus@megabigtech.com",
+    "type": "user"
+  }
+}
+
+
+change its InstallationPolicy value by running the Set-PSRepository cmdlet. Are you sure you
+want to install the modules from 'PSGallery'?
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"): A
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0>
+
+
+   ommand
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> set-executionpolicy remotesigned
+
+Execution Policy Change
+The execution policy helps protect you from scripts that you do not trust. Changing the
+execution policy might expose you to the security risks described in the
+about_Execution_Policies help topic at https:/go.microsoft.com/fwlink/?LinkID=135170. Do you
+want to change the execution policy?
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"): y
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Import-Module Microsoft.Graph.Users
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Connect-MgGraph
+Welcome to Microsoft Graph!
+
+Connected via delegated access using 14d82eec-204b-4c2f-b7e8-296a70dab67e
+Readme: https://aka.ms/graph/sdk/powershell
+SDK Docs: https://aka.ms/graph/sdk/powershell/docs
+API Docs: https://aka.ms/graph/docs
+
+NOTE: You can use the -NoWelcome parameter to suppress this message.
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Install-Module Az
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Import-Module Az
+
+
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Get-MGContext
+
+
+ClientId               : 14d82eec-204b-4c2f-b7e8-296a70dab67e
+TenantId               : 2590ccef-687d-493b-ae8d-441cbab63a72
+Scopes                 : {Application.ReadWrite.All, AuditLog.Read.All,
+                         Directory.AccessAsUser.All, Directory.Read.All...}
+AuthType               : Delegated
+TokenCredentialType    : InteractiveBrowser
+CertificateThumbprint  :
+CertificateSubjectName :
+SendCertificateChain   : False
+Account                : marcus@megabigtech.com
+AppName                : Microsoft Graph Command Line Tools
+ContextScope           : CurrentUser
+Certificate            :
+PSHostVersion          : 5.1.22621.4391
+ManagedIdentityId      :
+ClientSecret           :
+Environment            : Global
+
+
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az ad signed-in-user show
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users/$entity",
+  "businessPhones": [],
+  "displayName": "Marcus Hutch",
+  "givenName": "Marcus",
+  "id": "41c178d3-c246-4c00-98f0-8113bd631676",
+  "jobTitle": "Flag: 39c6217c4a28ba7f3198e5542f9e50c4",
+  "mail": null,
+  "mobilePhone": null,
+  "officeLocation": null,
+  "preferredLanguage": null,
+  "surname": "Hutch",
+  "userPrincipalName": "marcus@megabigtech.com"
+}
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Get-MgUserMemberOf -userid "marcus@megabigtech.com" | select * -ExpandProperty additionalProperties | Select-Object {$_.AdditionalProperties["displayName"]}
+
+$_.AdditionalProperties["displayName"]
+--------------------------------------
+Directory Readers
+Default Directory
+All Company
+
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $CurrentSubscriptionID = "ceff06cb-e29d-4486-a3ae-eaaec5689f94"
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $OutputFormat = "table"
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> & az account set --subscription $CurrentSubscriptionID
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> & az resource list -o $OutputFormat
+Name             ResourceGroup     Location    Type                       Status
+---------------  ----------------  ----------  -------------------------  --------
+ext-contractors  content-static-2  eastus      Microsoft.KeyVault/vaults
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $VaultName = "ext-contractors"
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $SubscriptionID = "ceff06cb-e29d-4486-a3ae-eaaec5689f94"
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az account set --subscription $SubscriptionID
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $secretsJson = az keyvault secret list --vault-name $VaultName -o json
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $secrets = $secretsJson | ConvertFrom-Json
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $keysJson = az keyvault key list --vault-name $VaultName -o json
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $keys = $keysJson | ConvertFrom-Json
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Write-Host "Secrets in vault $VaultName"
+Secrets in vault ext-contractors
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> foreach ($secret in $secrets) {
+>>     Write-Host $secret.id
+>> }
+https://ext-contractors.vault.azure.net/secrets/alissa-suarez
+https://ext-contractors.vault.azure.net/secrets/josh-harvey
+https://ext-contractors.vault.azure.net/secrets/ryan-garcia
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Write-Host "Keys in vault $VaultName"
+Keys in vault ext-contractors
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> foreach ($key in $keys) {
+>>     Write-Host $key.id
+>> }
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $VaultName = "ext-contractors"
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> $SecretNames = @("alissa-suarez", "josh-harvey", "ryan-garcia")
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az account set --subscription $SubscriptionID
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Write-Host "Secret Values from vault $VaultName"
+Secret Values from vault ext-contractors
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Write-Host "Secret Values from vault $VaultName"
+Secret Values from vault ext-contractors
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> foreach ($SecretName in $SecretNames) {
+>>     $secretValueJson = az keyvault secret show --name $SecretName --vault-name $VaultName -o json
+>>     $secretValue = ($secretValueJson | ConvertFrom-Json).value
+>>     Write-Host "$SecretName - $secretValue"
+>> }
+alissa-suarez - Welcome123!
+josh-harvey - rvh35vC#Hj3
+ryan-garcia - CHrhce5hc35j!
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0>
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az ad user list --query "[?givenName=='Alissa' || givenName=='Josh' || givenName=='Ryan'].{Name:displayName, UPN:userPrincipalName, JobTitle:jobTitle}" -o table
+Name                      UPN                              JobTitle
+------------------------  -------------------------------  ------------------------------------------
+Josh Harvey (Consultant)  ext.josh.harvey@megabigtech.com  Consultant (Customer DB Migration Project)
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Get-MgUser -UserId ext.josh.harvey@megabigtech.com
+
+DisplayName              Id                                   Mail UserPrincipalName
+-----------              --                                   ---- -----------------
+Josh Harvey (Consultant) 6470f625-41ce-4233-a621-fad0aa0b7300      ext.josh.harvey@megabig...
+
+
+
+
+   erMemberOf
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> Get-MgUserMemberOf -userid $userid | select * -ExpandProperty additionalProperties | Select-Object {$_.AdditionalProperties["displayName"]}
+>> $UserId = '6470f625-41ce-4233-a621-fad0aa0b7300'
+
+$_.AdditionalProperties["displayName"]
+--------------------------------------
+CUSTOMER-DATABASE-ACCESS
+Directory Readers
+Default Directory
+
+
+
+
+   nd
+
+
+
+   nd
+
+
+
+   eAssignmentCommand
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az login
+Select the account you want to log in with. For more information on login with Azure CLI, see https://go.microsoft.com/fwlink/?linkid=2271136
+
+Retrieving tenants and subscriptions for the selection...
+
+[Tenant and subscription selection]
+
+No     Subscription name            Subscription ID                       Tenant
+-----  ---------------------------  ------------------------------------  -----------------
+[1] *  Microsoft Azure Sponsorship  ceff06cb-e29d-4486-a3ae-eaaec5689f94  Default Directory
+
+The default is marked with an *; the default tenant is 'Default Directory' and subscription is 'Microsoft Azure Sponsorship' (ceff06cb-e29d-4486-a3ae-eaaec5689f94).
+
+Select a subscription and tenant (Type a number or Enter for no changes): 1
+
+Tenant: Default Directory
+Subscription: Microsoft Azure Sponsorship (ceff06cb-e29d-4486-a3ae-eaaec5689f94)
+
+[Announcements]
+With the new Azure CLI login experience, you can select the subscription you want to use more easily. Learn more about it and its configuration at https://go.microsoft.com/fwlink/?linkid=2271236
+
+If you encounter any problem, please open an issue at https://aka.ms/azclibug
+
+[Warning] The login output has been updated. Please be aware that it no longer displays the full list of available subscriptions by default.
+
+
+
+   eAssignmentCommand
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az role definition list --custom-role-only true --query "[?roleName=='Customer Database Access']" -o json
+[
+  {
+    "assignableScopes": [
+      "/subscriptions/ceff06cb-e29d-4486-a3ae-eaaec5689f94/resourceGroups/content-static-2"
+    ],
+    "createdBy": "18600f1a-3cee-434e-860f-aff4078da055",
+    "createdOn": "2023-10-23T22:42:46.587891+00:00",
+    "description": "Provides access to the Mega Big Tech customer list and information about customers",
+    "id": "/subscriptions/ceff06cb-e29d-4486-a3ae-eaaec5689f94/providers/Microsoft.Authorization/roleDefinitions/53c88309-94d8-4b15-9c6b-f64a166f4ef0",
+    "name": "53c88309-94d8-4b15-9c6b-f64a166f4ef0",
+    "permissions": [
+      {
+        "actions": [
+          "Microsoft.Storage/storageAccounts/tableServices/tables/read"
+        ],
+        "condition": null,
+        "conditionVersion": null,
+        "dataActions": [
+          "Microsoft.Storage/storageAccounts/tableServices/tables/entities/read"
+        ],
+        "notActions": [],
+        "notDataActions": []
+      }
+    ],
+    "roleName": "Customer Database Access",
+    "roleType": "CustomRole",
+    "type": "Microsoft.Authorization/roleDefinitions",
+    "updatedBy": "18600f1a-3cee-434e-860f-aff4078da055",
+    "updatedOn": "2023-10-24T14:10:35.955569+00:00"
+  }
+]
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az storage account list --query "[].name" -o tsv
+
+
+Depending on your operation, you may need to be assigned one of the following roles:
+    "Storage Blob Data Owner"
+    "Storage Blob Data Contributor"
+    "Storage Blob Data Reader"
+    "Storage Queue Data Contributor"
+    "Storage Queue Data Reader"
+    "Storage Table Data Contributor"
+    "Storage Table Data Reader"
+
+If you want to use the old authentication method and allow querying for the right account key, please use the "--auth-mode" parameter and "key" value.
+
+
+
+Depending on your operation, you may need to be assigned one of the following roles:
+    "Storage Blob Data Owner"
+    "Storage Blob Data Contributor"
+    "Storage Blob Data Reader"
+    "Storage Queue Data Contributor"
+    "Storage Queue Data Reader"
+    "Storage Table Data Contributor"
+    "Storage Table Data Reader"
+
+If you want to use the old authentication method and allow querying for the right account key, please use the "--auth-mode" parameter and "key" value.
+
+
+
+Depending on your operation, you may need to be assigned one of the following roles:
+    "Storage Blob Data Owner"
+    "Storage Blob Data Contributor"
+    "Storage Blob Data Reader"
+    "Storage Queue Data Contributor"
+    "Storage Queue Data Reader"
+    "Storage Table Data Contributor"
+    "Storage Table Data Reader"
+
+If you want to use the old authentication method and allow querying for the right account key, please use the "--auth-mode" parameter and "key" value.
+
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0> az role definition list --custom-role-only true --query "[?roleName=='Customer Database Access']" -o json
+[
+  {
+    "assignableScopes": [
+      "/subscriptions/ceff06cb-e29d-4486-a3ae-eaaec5689f94/resourceGroups/content-static-2"
+    ],
+    "createdBy": "18600f1a-3cee-434e-860f-aff4078da055",
+    "createdOn": "2023-10-23T22:42:46.587891+00:00",
+    "description": "Provides access to the Mega Big Tech customer list and information about customers",
+    "id": "/subscriptions/ceff06cb-e29d-4486-a3ae-eaaec5689f94/providers/Microsoft.Authorization/roleDefinitions/53c88309-94d8-4b15-9c6b-f64a166f4ef0",
+    "name": "53c88309-94d8-4b15-9c6b-f64a166f4ef0",
+    "permissions": [
+      {
+        "actions": [
+          "Microsoft.Storage/storageAccounts/tableServices/tables/read"
+        ],
+        "condition": null,
+        "conditionVersion": null,
+        "dataActions": [
+          "Microsoft.Storage/storageAccounts/tableServices/tables/entities/read"
+        ],
+        "notActions": [],
+        "notDataActions": []
+      }
+    ],
+    "roleName": "Customer Database Access",
+    "roleType": "CustomRole",
+    "type": "Microsoft.Authorization/roleDefinitions",
+    "updatedBy": "18600f1a-3cee-434e-860f-aff4078da055",
+    "updatedOn": "2023-10-24T14:10:35.955569+00:00"
+  }
+]
+
+
+PS C:\Windows\System32\WindowsPowerShell\v1.0>
+
