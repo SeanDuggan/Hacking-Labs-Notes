@@ -1,1 +1,9 @@
+After successfully compromising the Azure user account marcus@megabigtech.com and gaining access to their cloud environment, Mega Big Tech have asked us to see how far we can penetrate into the cloud environment, and if we can access any confidential data. Specifically they need us to assess the security of resources associated with the Azure Subscription ID ceff06cb-e29d-4486-a3ae-eaaec5689f94 .
 
+Azure Key Vaults, which store sensitive data like secrets and certificates, are high-value targets for attackers aiming to compromise multiple services. Additionally, high-privileged contractor accounts that aren't properly managed pose a risk for privilege escalation and are also attractive targets for attackers.
+
+Entra ID (previously Azure AD) is the identity provider for Azure subscriptions, meaning it governs who has access to resources within a subscription. In Azure, multiple subscriptions can trust the same Entra ID directory, allowing for centralized management of resources and users.
+
+An Azure subscription is a logical unit of Azure services that is linked to an Azure account. It serves as a single billing unit for Azure resources consumed and provides an isolated environment for resource management. Each Azure subscription has its own set of resource groups, resources, Azure Resource Manager templates, role-based access control policies, and billing settings.
+
+For this assessment we should install PowerShell, the Azure CLI and the Microsoft Graph PowerShell SDK. Follow the installation procedures for your operating system if needed.
